@@ -1,0 +1,102 @@
+//
+//  college-PrefixHeader.pch
+//  college
+//
+//  Created by xiongchi on 15/7/16.
+//  Copyright (c) 2015年 xiongchi. All rights reserved.
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+#import "PubDefine.h"
+
+#import "UtilsMacro.h"
+
+#import "PubNotification.h"
+
+#import "Common.h"
+
+#import "PubNotification.h"
+
+#import "UIView+Extension.h"
+
+#define XCLocalized(x) NSLocalizedString(x, "")
+
+#define XFONT(x) [UIFont fontWithName:@"Helvetica" size:x]
+
+#define MAIN_COLOR   RGB(255, 71, 0)
+
+#define LINE_COLOR   UIColorFromRGB(0x9eadb2)
+
+#define FRAME_COLOR   UIColorFromRGB(0xFFF6F1)
+
+#define KHttpServer @"http://120.25.102.25:8080/dxsfw/"
+
+#import "NSDate+convenience.h"
+
+#define kTEACHVIEWTABLEVIEWHEIGHT   90
+
+#define kIDEAVIEWCONTROLLER     70
+
+#define EMOJI_MAX_SIZE   64
+
+#define VIEW_BACK    RGB(255,245,240)
+
+//9月2日开发内容
+/*
+1.4个学术页面
+2.json信息解析保存成model
+3.个人信息中  简历管理
+4.个人信息中  投递记录页面
+5.新接口调试
+ 
+ 9月8日
+1.完善娱乐活动-发布、查看、历史记录
+2.开发部分学术-发布、查看、历史记录
+3.休整兼职模块-搜索、地址导航
+4.个人信息设置-
+5.创意部分-
+//9月13日
+1.个人信息完善      点击用户头像
+2.论坛回复功能      显示回复功能
+3.图文混排
+4.另外角色的设置    注册开始的流程
+5.创意的API接入    
+6.创业的功能
+ 
+后面需要完善的部分
+
+1.新闻模块
+2.创意板块
+3.创业板块
+4.个人简历，添加，修改，删除(包含普通信息编辑与普片上传)
+5.历史活动接口
+6.历史兼职信息接口
+7.论坛与授课调整首页
+8.兼职搜索
+9.广告位
+10.图文混排
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+*/
+
+
+
+
+
+
