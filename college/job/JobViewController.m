@@ -31,11 +31,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     _aryData = [NSMutableArray array];
-    
     [self setTitleText:@"兼职"];
-    
     UIButton *btnRight = [UIButton buttonWithType:UIButtonTypeCustom];
     [btnRight setTitle:@"简历" forState:UIControlStateNormal];
     btnRight.titleLabel.font = XFONT(14);

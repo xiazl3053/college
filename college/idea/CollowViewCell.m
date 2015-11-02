@@ -103,10 +103,6 @@
 
 -(void)setModel:(CollowModel *)model
 {
-    //    NSString *strUrl = [NSString stringWithFormat:@"%@pub/downloadUserPicture?userid=%@&token=%@",KHttpServer,model.strUserId,[UserInfo sharedUserInfo].strToken];
-    //    [imgHead sd_setImageWithURL:[NSURL URLWithString:strUrl] placeholderImage:[UIImage imageNamed:@"firstFace"]];
-    //    lblNick.text = model.strNick;
-    //    lblJoinNumber.text = [NSString stringWithFormat:@"报名人数:%@",model.strJoinNum];
     lblTitle.text = model.strTitle;
     lblCost.text = model.strCost;
     lblContent.text = model.strContent;

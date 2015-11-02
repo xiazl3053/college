@@ -442,25 +442,29 @@
 
 - (void)onAddPhoto:(UIButton *)sender
 {
-    _imagePicker = [[UIImagePickerController alloc] init];//
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-    _imagePicker.delegate = self;
-    _imagePicker.allowsEditing = NO;
+    if(_imagePicker==nil)
+    {
+        _imagePicker = [[UIImagePickerController alloc] init];//
+        _imagePicker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+        _imagePicker.delegate = self;
+        _imagePicker.allowsEditing = NO;
+    }
     [self presentViewController:_imagePicker animated:YES completion:^{}];
     
 }
 
 -(void)onAddCamre:(UIButton *)sender
 {
-    
-    _camrePicker = [[UIImagePickerController alloc] init];//
-    _camrePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    _camrePicker.delegate = self;
-    _camrePicker.allowsEditing = NO;
-    _camrePicker.modalPresentationStyle=UIModalPresentationFullScreen;
-    _camrePicker.modalPresentationStyle=UIModalPresentationCurrentContext;
+    if(_camrePicker==nil)
+    {
+        _camrePicker = [[UIImagePickerController alloc] init];//
+        _camrePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        _camrePicker.delegate = self;
+        _camrePicker.allowsEditing = NO;
+        _camrePicker.modalPresentationStyle=UIModalPresentationFullScreen;
+        _camrePicker.modalPresentationStyle=UIModalPresentationCurrentContext;
+    }
     [self presentViewController:_camrePicker animated:YES completion:^{}];
-    
 }
 
 - (void)didReceiveMemoryWarning

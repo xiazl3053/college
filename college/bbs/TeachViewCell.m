@@ -84,8 +84,21 @@
     lblNick.text = model.strNick;
     lblJoinNumber.text = [NSString stringWithFormat:@"报名人数:%@",model.strJoinNum];
     lblTitle.text = model.strTitile;
-    NSInteger nLength = model.strContent.length >= 30 ? 30 : model.strContent.length;
-    lblContent.text = [NSString stringWithFormat:@"%@",[model.strContent substringWithRange:NSMakeRange(0,nLength)]];
+    NSString *_strContent = model.strContent;
+    while (YES&&_strContent)
+    {
+        NSRange start = [_strContent rangeOfString:@"<img>"];
+        if (start.location == NSNotFound)
+        {
+            break;
+        }
+        NSRange end = [_strContent rangeOfString:@"</img>"];
+        _strContent = [_strContent stringByReplacingCharactersInRange:NSMakeRange(start.location,end.location+end.length-start.location) withString:@""];
+    }
+    NSInteger nLength = _strContent.length >= 30 ? 30 : _strContent.length;
+    
+    lblContent.text = [NSString stringWithFormat:@"%@",[_strContent substringWithRange:NSMakeRange(0, nLength)]];
+    
 }
 
 -(void)addLineView

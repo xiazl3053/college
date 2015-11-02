@@ -11,9 +11,9 @@
 @interface UserModel : NSObject
 
 @property (nonatomic,assign) NSInteger nId;
-@property (nonatomic,strong) NSString *strUser;
-@property (nonatomic,strong) NSString *strPwd;
-@property (nonatomic,strong) NSString *strToken;
+@property (nonatomic,copy) NSString *strUser;
+@property (nonatomic,copy) NSString *strPwd;
+@property (nonatomic,copy) NSString *strToken;
 @property (nonatomic,assign) int nLogin;
 
 

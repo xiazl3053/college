@@ -8,6 +8,9 @@
 
 #import "IdeaViewController.h"
 #import "UserInfo.h"
+#import "CollowViewController.h"
+#import "MJRefresh.h"
+#import "IdeaDetailViewController.h"
 #import "AddCollowViewController.h"
 #import "AddIdeaViewController.h"
 #import "IdeaViewCell.h"
@@ -32,6 +35,9 @@
 @property (nonatomic,strong) NSMutableArray *aryNow;
 @property (nonatomic,strong) NSMutableArray *aryCollow;
 
+@property (nonatomic,assign) NSInteger nIdeaIndex;
+@property (nonatomic,assign) NSInteger nCollowIndex;
+
 @end
 
 @implementation IdeaViewController
@@ -43,26 +49,21 @@
     _aryCollow = [NSMutableArray array];
     _aryNow = [NSMutableArray array];
     
-    for (int i=0; i<5; i++)
-    {
-        IdeaModel *model = [[IdeaModel alloc] init];
-        model.strCreateTime = @"2015-9-10";
-        model.strTitle = @"关于操你妹";
-        model.strCost = @"30";
-        model.strIntrol = @"如何约，附近的萨看来放假快乐的撒娇弗兰克的撒娇分开了的撒娇了看法的撒娇了看法啊就是抵抗力发觉卡什莱夫健康的风景都开始垃圾发电卢萨卡激发快乐撒大家快来方式记录看法是打开拉风萨帝撒";
-        [_aryNow addObject:model];
-    }
-    
-    for (int i=0; i<5; i++)
-    {
-        CollowModel *model = [[CollowModel alloc] init];
-        model.strCreateTime = @"2015-9-10";
-        model.strTitle = @"征收一个帅哥";
-        model.strCost = @"30";
-        model.strContent = @"如何约，附近的萨看来放假快乐的撒娇弗兰克的撒娇分开了的撒娇了看法的撒娇了看法啊就是抵抗力发觉卡什莱夫健康的风景都开始垃圾发电卢萨卡激发快乐撒大家快来方式记录看法是打开拉风萨帝撒";
-        [_aryCollow addObject:model];
-    }
+//    for (int i=0; i<5; i++)
+//    {
+//        CollowModel *model = [[CollowModel alloc] init];
+//        model.strCreateTime = [NSString stringWithFormat:@"2015-9-1%d",i];
+//        model.strTitle = @"快速编码";
+//        model.strCost = @"30";
+//        model.strContent = @"这是一条征收创意的测试信息";
+//        [_aryCollow addObject:model];
+//    }
     [self initView];
+    [self initIdeaData];
+    [self initCollowData];
+    [_tableCollow addHeaderWithTarget:self action:@selector(initCollowData)];
+//    [self ini];
+    [_tableNow addHeaderWithTarget:self action:@selector(initIdeaData)];
 }
 
 - (void)didReceiveMemoryWarning
@@ -82,6 +83,132 @@
         AddCollowViewController *addView = [[AddCollowViewController alloc] init];
         [self presentViewController:addView animated:YES completion:nil];
     }
+}
+
+-(void)initCollowData
+{
+    NSString *strUrl = [NSString stringWithFormat:@"%@zhengji/search?token=%@&keyword=&pageNo=1&pageSize=10",KHttpServer,
+                        [UserInfo sharedUserInfo].strToken];
+    __weak IdeaViewController *__self = self;
+    _nCollowIndex = 0;
+    [__self.aryCollow removeAllObjects];
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject)
+     {
+         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+         DLog(@"dict:%@",dict);
+         if ([[dict objectForKey:@"status"] intValue]==200) {
+             NSArray *array = [dict objectForKey:@"list"];
+             for (NSDictionary *temp in array)
+             {
+                 CollowModel *collow = [[CollowModel alloc] initWithDict:temp];
+                 [__self.aryCollow addObject:collow];
+                 __self.nCollowIndex++;
+             }
+             dispatch_async(dispatch_get_main_queue(),
+                            ^{
+                                [__self.tableCollow headerEndRefreshing];
+                                [__self.tableCollow reloadData];
+                            });
+         }
+     } fail:^(NSError *error) {
+         
+     }];
+}
+
+-(void)initIdeaData
+{
+    NSString *strUrl = [NSString stringWithFormat:@"%@idea/search?token=%@&keyword=&pageNo=1&pageSize=10",KHttpServer,
+                        [UserInfo sharedUserInfo].strToken];
+    __weak IdeaViewController *__self = self;
+    _nIdeaIndex = 0;
+    [__self.aryCollow removeAllObjects];
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject)
+     {
+         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+         DLog(@"dict:%@",dict);
+         if ([[dict objectForKey:@"status"] intValue]==200) {
+             NSArray *array = [dict objectForKey:@"list"];
+             for (NSDictionary *temp in array)
+             {
+                 IdeaModel *idea = [[IdeaModel alloc] initWithDict:temp];
+                 [__self.aryNow addObject:idea];
+                 __self.nIdeaIndex++;
+             }
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
+                [__self.tableNow headerEndRefreshing];
+                [__self.tableNow reloadData];
+            });
+         }
+     } fail:^(NSError *error) {
+         
+     }];
+}
+
+-(void)initMoreIdea
+{
+    if (_nIdeaIndex%10!=0)
+    {
+        [_tableNow footerEndRefreshing];
+        return ;
+    }
+    NSString *strUrl = [NSString stringWithFormat:@"%@idea/search?token=%@&keyword=&pageNo=%zi&pageSize=10",KHttpServer,
+                        [UserInfo sharedUserInfo].strToken,_nIdeaIndex/10+1];
+    __weak IdeaViewController *__self = self;
+    
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        DLog(@"dict:%@",dict);
+        if ([[dict objectForKey:@"status"] intValue]==200) {
+            NSArray *array = [dict objectForKey:@"list"];
+            for (NSDictionary *temp in array)
+            {
+                IdeaModel *bbs = [[IdeaModel alloc] initWithDict:temp];
+                [__self.aryNow addObject:bbs];
+                __self.nIdeaIndex++;
+            }
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               [__self.tableNow footerEndRefreshing];
+                               [__self.tableNow reloadData];
+                           });
+        }
+    } fail:^(NSError *error) {
+        
+    }];
+}
+
+-(void)initMoreCollow
+{
+    if (_nCollowIndex%10!=0)
+    {
+        [_tableCollow footerEndRefreshing];
+        return ;
+    }
+    NSString *strUrl = [NSString stringWithFormat:@"%@zhengji/search?token=%@&keyword=&pageNo=%zi&pageSize=10",KHttpServer,
+                        [UserInfo sharedUserInfo].strToken,_nCollowIndex/10+1];
+    __weak IdeaViewController *__self = self;
+    
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        DLog(@"dict:%@",dict);
+        if ([[dict objectForKey:@"status"] intValue]==200) {
+            NSArray *array = [dict objectForKey:@"list"];
+            for (NSDictionary *temp in array)
+            {
+                CollowModel *bbs = [[CollowModel alloc] initWithDict:temp];
+                [__self.aryCollow addObject:bbs];
+                __self.nCollowIndex++;
+            }
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               [__self.tableCollow footerEndRefreshing];
+                               [__self.tableCollow reloadData];
+                           });
+        }
+    } fail:^(NSError *error) {
+        
+    }];
 }
 
 -(void)initView
@@ -178,6 +305,7 @@
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (_tableNow == tableView) {
+        DLog(@"size:%zi",_aryNow.count);
         return _aryNow.count;
     }
     return _aryCollow.count;
@@ -222,15 +350,18 @@
     return kIDEAVIEWCONTROLLER;
 }
 
+
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (_tableNow == tableView)
     {
-        
+        IdeaDetailViewController *ideaView = [[IdeaDetailViewController alloc] initWithModel:[_aryNow objectAtIndex:indexPath.row]];
+        [self presentViewController:ideaView animated:YES completion:nil];
     }
     else
     {
-        
+        CollowViewController *collowView = [[CollowViewController alloc] initWithModel:[_aryCollow objectAtIndex:indexPath.row]];
+        [self presentViewController:collowView animated:YES completion:nil];
     }
 }
 

@@ -25,14 +25,18 @@
     _strUserId = [dict objectForKey:@"userid"];
     _strTitile = [dict objectForKey:@"title"];
     _strContent = [dict objectForKey:@"content"];
+    _strImg = [dict objectForKey:@"pictures"];
     
     _strRePly = [dict objectForKey:@"replynumber"]==nil ? @"0" : [dict objectForKey:@"replynumber"];
     _strClickNum = [dict objectForKey:@"clicknumber"]==nil?@"0":[dict objectForKey:@"clicknumber"];
     
     _strCost = [dict objectForKey:@"info"];
     _strAllNum = [dict objectForKey:@""];
-    _strTeachId = [dict objectForKey:@"id"];
+    _strTeachId = [dict objectForKey:@"bbsid"];
     _strType = [dict objectForKey:@"type"];
+    
+    _strJoinNum = [dict objectForKey:@"people"];
+    
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [fmt setLocale:usLocale];
@@ -45,6 +49,16 @@
     long lUpdateTime = (long)[[dict objectForKey:@"updatetime"] doubleValue]/1000;
     NSDate *updateTime = [NSDate dateWithTimeIntervalSince1970:lUpdateTime];
     _strUpdateTime = [fmt stringFromDate:updateTime];
+    
+    long lTeachTime = (long)[[dict objectForKey:@"teachtime"] doubleValue]/1000;
+    NSDate *teachTime = [NSDate dateWithTimeIntervalSince1970:lTeachTime];
+    _strTeachTime = [fmt stringFromDate:teachTime];
+    
+    NSDictionary *userDict = [dict objectForKey:@"user"];
+    if (userDict)
+    {
+        _strNick = [userDict objectForKey:@"nickname"];
+    }
     
     return self;
 }

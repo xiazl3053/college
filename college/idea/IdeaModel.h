@@ -20,8 +20,11 @@
 @property (nonatomic,copy) NSString *strCost;
 @property (nonatomic,copy) NSString *strAssess;
 @property (nonatomic,copy) NSString *strNumber;
+@property (nonatomic,copy) NSString *strIdeaId;
+@property (nonatomic,copy) NSString *strImg;
+@property (nonatomic,copy) NSString *strSell;
 
 
--(id)initWitkhDict:(NSDictionary *)dict;
+-(id)initWithDict:(NSDictionary *)dict;
 
 @end

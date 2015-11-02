@@ -82,8 +82,12 @@
     [btnLogin addTarget:self action:@selector(loginEvent) forControlEvents:UIControlEventTouchUpInside];
     [btnReg addTarget:self action:@selector(regEvent) forControlEvents:UIControlEventTouchUpInside];
     
-    xtxUser.text = @"17727610912";
-    xtxPwd.text = @"123456";
+    UserModel *user = [LoginUserDB querySaveInfo];
+    if (user)
+    {
+        xtxUser.text = user.strUser;
+        xtxPwd.text = user.strPwd;
+    }
 }
 
 -(void)dealloc
@@ -101,7 +105,8 @@
         return ;
     }
     
-    if (strPwd == nil || [strPwd isEqualToString:@""]) {
+    if (strPwd == nil || [strPwd isEqualToString:@""])
+    {
         [self.view makeToast:@"密码不能为空"];
         return ;
     }
@@ -115,10 +120,10 @@
         DLog(@"dict:%@",dict);
         if ([[dict objectForKey:@"status"] intValue]==200)
         {
-            UserInfo *info = [UserInfo sharedUserInfo];
-            info.strToken = [dict objectForKey:@"token"];
+            [UserInfo sharedUserInfo].strToken = [dict objectForKey:@"token"];
+            DLog(@"token:%@",[UserInfo sharedUserInfo].strToken);
             NSDictionary *user = [dict objectForKey:@"user"];
-            [info setUserDict:user];
+            [[UserInfo sharedUserInfo] setUserDict:user];
             
             UserModel *userDl = [[UserModel alloc] init];
             userDl.strToken = [UserInfo sharedUserInfo].strToken;

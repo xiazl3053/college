@@ -17,7 +17,6 @@
 @interface HomeViewController ()
 
 @property (nonatomic,strong) UIView *headView;
-@property (nonatomic,strong) UIButton *btnLeft;
 @property (nonatomic,strong) UIButton *btnRight;
 @property (nonatomic,strong) UILabel *txtTitle;
 
@@ -64,7 +63,6 @@
 {
     NSString *strInfo = [NSString stringWithFormat:@"%@pub/downloadUserPicture?token=%@&userid=%@",
                          KHttpServer,[UserInfo sharedUserInfo].strToken,[UserInfo sharedUserInfo].strUserId];
-    
     [_btnLeft sd_setBackgroundImageWithURL:[NSURL URLWithString:strInfo] forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"moren_longin"]];
 }
 

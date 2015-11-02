@@ -10,24 +10,26 @@
 
 @implementation IdeaModel
 
--(id)initWitkhDict:(NSDictionary *)dict
+-(id)initWithDict:(NSDictionary *)dict
 {
     self = [super init];
+    _strIdeaId = [dict objectForKey:@"ideaid"];
     
     _strUserId = [dict objectForKey:@"userid"];
     _strTitle = [dict objectForKey:@"title"];
     _strContent = [dict objectForKey:@"content"];
 //    _strRePly = [dict objectForKey:@"replay"];
 //    _strClickNum = [dict objectForKey:@""];
-    _strCost = [dict objectForKey:@"cost"];
+    _strCost = [dict objectForKey:@"price"];
 //    _strAllNum = [dict objectForKey:@""];
 //    _strTeachId = [dict objectForKey:@"id"];
-    _strIntrol = [dict objectForKey:@""];
+    _strIntrol = [dict objectForKey:@"jieshao"] ? [dict objectForKey:@"jieshao"] : @"";
+//    _strIntrol = [dict objectForKey:@""];
     
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [fmt setLocale:usLocale];
-    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    fmt.dateFormat = @"yyyy-MM-dd";
     
     long lCreateTime = (long)[[dict objectForKey:@"createtime"] doubleValue]/1000;
     NSDate *createTime = [NSDate dateWithTimeIntervalSince1970:lCreateTime];
@@ -37,8 +39,15 @@
     NSDate *updateTime = [NSDate dateWithTimeIntervalSince1970:lUpdateTime];
     _strUpdateTime = [fmt stringFromDate:updateTime];
     
-
+    NSDictionary *userDict = [dict objectForKey:@"user"];
+    if (userDict)
+    {
+        _strNick = [userDict objectForKey:@"nickname"];
+    }
     
+    _strImg = [dict objectForKey:@"pictures"];
+    
+    _strSell = [dict objectForKey:@"sellstatus"]?[dict objectForKey:@"sellstatus"]:@"N";
     
     return self;
 }

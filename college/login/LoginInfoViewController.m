@@ -8,6 +8,9 @@
 
 #import "LoginInfoViewController.h"
 #import "XLoginButton.h"
+#import "Toast+UIView.h"
+#import "UserInfo.h"
+#import "BaseService.h"
 #import "UserSettingViewController.h"
 
 @interface LoginInfoViewController ()
@@ -64,12 +67,51 @@
     [btnPress setTitleColor:MAIN_COLOR forState:UIControlStateHighlighted];
     [self.view addSubview:btnPress];
     [btnPress addTarget:self action:@selector(enterInfo) forControlEvents:UIControlEventTouchUpInside];
+    btnStudent.selected = YES;
 }
+
+
 
 -(void)enterInfo
 {
-    UserSettingViewController *userSet = [[UserSettingViewController alloc] init];
-    [self presentViewController:userSet animated:YES completion:nil];
+    [self.view makeToastActivity];
+    NSString *strInfo = [NSString stringWithFormat:@"%@pub/updateUser?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
+    NSNumber *numberInfo = nil;
+    if (btnStudent.selected)
+    {
+        numberInfo = [[NSNumber alloc] initWithInt:1];
+    }
+    else
+    {
+        numberInfo = [[NSNumber alloc] initWithInt:2];
+    }
+    NSDictionary *parameter = @{@"userid":[UserInfo sharedUserInfo].strUserId,@"type":numberInfo};
+    __weak LoginInfoViewController *__self = self;
+    [BaseService postJSONWithUrl:strInfo parameters:parameter success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        if ([[dict objectForKey:@"status"] intValue]==200) {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [__self.view hideToastActivity];
+                 UserSettingViewController *userSet = [[UserSettingViewController alloc] init];
+                 [__self presentViewController:userSet animated:YES completion:nil];
+             });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [__self.view hideToastActivity];
+                [__self.view makeToast:[dict objectForKey:@"msg"]];
+            });
+        }
+    } fail:^(NSError *error){
+           dispatch_async(dispatch_get_main_queue(), ^{
+               [__self.view hideToastActivity];
+               [__self.view makeToast:@"连接服务器错误"];
+           });
+    }];
+//    
+//    UserSettingViewController *userSet = [[UserSettingViewController alloc] init];
+//    [self presentViewController:userSet animated:YES completion:nil];
 }
 
 -(void)tapEvent:(UIButton *)btnSender

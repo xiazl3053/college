@@ -44,24 +44,17 @@
 -(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-//    imgHead = [[UIImageView alloc] initWithFrame:Rect(10, 6,40, 40)];
     nX = 10;
-//    [self.contentView addSubview:imgHead];
-//    lblNick = [[UILabel alloc] initWithFrame:Rect(10,10,180,20)];
-//    lblNick = [[UILabel alloc] initWithFrame:Rect(imgHead.x+imgHead.width+10, 7, 180, 20)];
-//    [lblNick setFont:XFONT(15)];
-//    [lblNick setTextColor:UIColorFromRGB(0x222222)];
-//    [self.contentView addSubview:lblNick];
-    
+
     lblTitle = [[UILabel alloc] initWithFrame:Rect(10, 10,kScreenSourchWidth-20, 15)];
     
-    lblContent = [[UILabel alloc] initWithFrame:Rect(lblTitle.x, 30, kScreenSourchWidth-80, 30)];;
+    lblContent = [[UILabel alloc] initWithFrame:Rect(lblTitle.x, 30, kScreenSourchWidth-100, 30)];;
     
     lblCost = [[UILabel alloc] initWithFrame:Rect(kScreenSourchWidth-80, 15, 70, 15)];
     
     [lblCost setTextColor:MAIN_COLOR];
     
-    [lblCost setFont:XFONT(12)];
+    [lblCost setFont:XFONT(14)];
     
     lblCreateTime = [[UILabel alloc] initWithFrame:Rect(kScreenSourchWidth-80,40,70,15)];
     
@@ -90,8 +83,8 @@
     [lblContent setFont:XFONT(12)];
     
     lblContent.lineBreakMode = NSLineBreakByWordWrapping;// UILineBreakModeWordWrap;
-    lblContent.numberOfLines = 0;
     
+    lblContent.numberOfLines = 0;
     
     return self;
 }
@@ -100,11 +93,13 @@
 {
 
     lblTitle.text = model.strTitle;
-    lblCost.text = model.strCost;
+    lblCost.text = [NSString stringWithFormat:@"%@",model.strCost];
     lblContent.text = model.strIntrol;
     lblCreateTime.text = model.strCreateTime;
-    CGRect size = [model.strIntrol boundingRectWithSize:CGSizeMake(lblTitle.width,40) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:[NSDictionary dictionaryWithObjectsAndKeys:lblTitle.font,NSFontAttributeName, nil] context:nil];
-    lblContent.frame = Rect(10, 30, kScreenSourchWidth-80, size.size.height);
+    
+//    CGRect size = [model.strIntrol boundingRectWithSize:CGSizeMake(lblTitle.width,40) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:[NSDictionary dictionaryWithObjectsAndKeys:lblTitle.font,NSFontAttributeName, nil] context:nil];
+//    lblContent.frame = Rect(10, 30, kScreenSourchWidth-80, size.size.height);
+    
 }
 
 -(void)addLineView

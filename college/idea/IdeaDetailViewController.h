@@ -8,6 +8,9 @@
 
 #import "CustomViewController.h"
 
+@class IdeaModel;
 @interface IdeaDetailViewController : CustomViewController
+
+-(id)initWithModel:(IdeaModel *)model;
 
 @end

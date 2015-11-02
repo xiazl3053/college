@@ -135,12 +135,6 @@
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         DLog(@"dict:%@",dict);
         if ([[dict objectForKey:@"status"] intValue]==200) {
-//            dispatch_async(dispatch_get_main_queue(),
-//            ^{
-//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                    [__self dismissViewControllerAnimated:YES completion:nil];
-//                });
-//            });
             if (__self.aryImage.count>0)
             {
                 __self.backModel = [[BBSModel alloc] initWithDict:[dict objectForKey:@"bbs"]];

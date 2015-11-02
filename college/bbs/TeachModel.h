@@ -25,5 +25,8 @@
 @property (nonatomic,copy) NSString *strTeachId;
 @property (nonatomic,copy) NSString *strNick;
 @property (nonatomic,copy) NSString *strType;
+@property (nonatomic,copy) NSString *strImg;
+@property (nonatomic,copy) NSString *strTeachTime;
+
 
 @end

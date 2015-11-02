@@ -8,6 +8,9 @@
 
 #import "CustomViewController.h"
 
+@class CollowModel;
 @interface CollowViewController : CustomViewController
+
+-(id)initWithModel:(CollowModel *)model;
 
 @end

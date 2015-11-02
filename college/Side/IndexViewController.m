@@ -18,6 +18,8 @@
 //#import "SettingViewController.h"
 #import "JobViewController.h"
 
+#define SELECTED_VIEW_CONTROLLER_TAG 98456345
+
 @interface IndexViewController ()<XCollTabDelegate>
 {
 //    DownRecordViewController *recordViewControl;
@@ -80,8 +82,15 @@
     ideaControl = [[IdeaViewController alloc] init];
     [self addChildViewController:ideaControl];
     
-    [_tabInfo clickIndex:2];
-    [self showSonView:jobControl];
+    [_tabInfo clickIndex:0];
+    
+//    [self.view addSubview:newControl.view];
+//    [self.view addSubview:jobControl.view];
+//    [self.view addSubview:playControl.view];
+//    [self.view addSubview:ideaControl.view];
+//    [self.view addSubview:studyView.view];
+    
+    [self showSonView:newControl];
 }
 
 -(void)showSonView:(UIViewController *)tempControl
@@ -89,23 +98,25 @@
     __weak UIViewController *__viewControl = tempControl;
     __weak IndexViewController *__self = self;
     __weak XCollTab *__tabInfo = _tabInfo;
-    [UIView animateWithDuration:0.2f animations:^{
+    [UIView animateWithDuration:0.1f animations:
+     ^{
         if(__viewControl)
         {
-            __viewControl.view.frame = Rect(0, 0,kScreenSourchWidth,kScreenSourchHeight-50);
+            UIView *currentView = [__self.view viewWithTag:SELECTED_VIEW_CONTROLLER_TAG];
+            [currentView removeFromSuperview];
+            __viewControl.view.frame = Rect(0, 0,kScreenSourchWidth,kScreenSourchHeight-__tabInfo.height);
+            
             [__self.view insertSubview:__viewControl.view belowSubview:__tabInfo];
+            
+            __viewControl.view.tag = SELECTED_VIEW_CONTROLLER_TAG;
         }
-    }
-    completion:^(BOOL finish)
-     {
-         
      }];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
 }
 
 -(void)clickView:(UIButton *)btnSender index:(int)nIndex

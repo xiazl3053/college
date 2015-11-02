@@ -8,11 +8,14 @@
 
 #import "AddIdeaViewController.h"
 #import "XViewTextField.h"
+#import "Toast+UIView.h"
 #import "XViewTextSelect.h"
 #import "UserInfo.h"
 #import "XContentViewController.h"
 #import "BaseService.h"
 #import "XContentViewController.h"
+#import "XTextViewController.h"
+#import "IdeaModel.h"
 
 @interface AddIdeaViewController ()
 {
@@ -22,17 +25,30 @@
     XViewTextSelect *txtContent;
 }
 
+@property (nonatomic,strong) IdeaModel *backModel;
 @property (nonatomic,copy) NSString *strIntro;
 @property (nonatomic,copy) NSString *strContent;
+@property (nonatomic,strong) NSMutableArray *aryImage;
+@property (nonatomic,assign) NSInteger nId;
 
 @end
 
 @implementation AddIdeaViewController
 
+-(id)initWithZhengjiId:(NSInteger)zId
+{
+    self = [super init];
+    
+    _nId = zId;
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.view setBackgroundColor:RGB(255, 255, 255)];
+    _aryImage = [NSMutableArray array];
+    [self.view setBackgroundColor:VIEW_BACK];
     [self initView];
 }
 
@@ -105,15 +121,19 @@
     __weak XViewTextSelect *__txt = txtContent;
     [txtContent addTouchEvent:
     ^{
-        XContentViewController *content = [[XContentViewController alloc] initWithTitle:@"内容编辑" content:__self.strContent];
-        content.stringBlock= ^(NSString *strInfo)
+        XTextViewController *content = [[XTextViewController alloc] initWithTitle:@"内容编辑" content:__self.strContent ary:__self.aryImage];
+        content.blockText= ^(NSString *strInfo,NSArray *aryImage)
         {
             DLog(@"strInfo:%@",strInfo);
             __self.strContent = strInfo;
-            dispatch_async(dispatch_get_main_queue(),
-            ^{
-                [__txt.txtContent setText:[NSString stringWithFormat:@"已输入%zi个字符",__self.strContent.length]];
-            });
+            [__self.aryImage addObjectsFromArray:aryImage];
+            if(strInfo.length>=1)
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                ^{
+                    [__txt.txtContent setText:[NSString stringWithFormat:@"已有内容"]];
+                });
+            }
         };
         [content setContent:__self.strContent];
         [__self presentViewController:content animated:YES completion:nil];
@@ -137,7 +157,126 @@
 
 -(void)setEvent
 {
+    NSString *strTitle = txtTitle.txtContent.text;
+    NSString *strPrice = txtPrice.txtContent.text;
     
+    
+    if (strTitle==nil || [strTitle isEqualToString:@""])
+    {
+        [self.view makeToast:@"创意主题不能为空"];
+        return ;
+    }
+    if (strPrice == nil || [strPrice isEqualToString:@""])
+    {
+        [self.view makeToast:@"价格不能为空"];
+        return;
+    }
+    if (_strContent==nil || [_strContent isEqualToString:@""])
+    {
+        [self.view makeToast:@"授课内容不能为空"];
+        return ;
+    }
+    if (_strIntro == nil||[_strIntro isEqualToString:@""])
+    {
+        [self.view makeToast:@"引言不能为空"];
+        return ;
+    }
+  
+    
+    NSString *strUrl = [NSString stringWithFormat:@"%@idea/add?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
+    NSDictionary *parameters = nil;
+    if (_nId)
+    {
+        parameters = @{@"userid":[UserInfo sharedUserInfo].strUserId,
+                       @"title":strTitle,@"price":strPrice,
+                       @"content":_strContent,@"jieshao":_strIntro,@"zhengjiid":[NSNumber numberWithInteger:_nId]};
+    }
+    else
+    {
+        parameters = @{@"userid":[UserInfo sharedUserInfo].strUserId,
+                                 @"title":strTitle,@"price":strPrice,
+                                 @"content":_strContent,@"jieshao":_strIntro};
+    }
+    [self.view makeToastActivity];
+    __weak AddIdeaViewController *__self = self;
+    [BaseService postJSONWithUrl:strUrl parameters:parameters success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject
+                                                             options:NSJSONReadingMutableLeaves error:nil];
+        DLog(@"dict:%@",dict);
+        
+        if ([[dict objectForKey:@"status"] intValue]==200)
+        {
+            //上传图片
+            if (__self.aryImage.count>0)
+            {
+                __self.backModel = [[IdeaModel alloc] initWithDict:[dict objectForKey:@"idea"]];
+                UIImage *image = [__self.aryImage objectAtIndex:0];
+                [__self.aryImage removeObjectAtIndex:0];
+                [__self uploadPartyId:image];
+            }
+            else
+            {
+                
+            }
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [__self.view hideToastActivity];
+                [__self.view makeToast:@"添加失败"];
+            });
+        }
+    } fail:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [__self.view hideToastActivity];
+            [__self.view makeToast:@"添加失败"];
+        });
+    }];
+}
+
+
+-(void)uploadPartyId:(UIImage *)image
+{
+    NSString *strUrl = [NSString stringWithFormat:@"%@pub/uploadMore/idea/%@?token=%@&type=jpg",KHttpServer,_backModel.strIdeaId
+                        ,[UserInfo sharedUserInfo].strToken];
+    __weak AddIdeaViewController *__self = self;
+    [BaseService postUploadWithUrl:strUrl image:image success:^(id responseObject)
+     {
+         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+         DLog(@"dict:%@",dict);
+         NSString *strInfo = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+         DLog(@"strInfo:%@",strInfo);
+         if([[dict objectForKey:@"status"] intValue]!=200)
+         {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [__self.view hideToastActivity];
+                 [__self.view makeToast:[dict objectForKey:@"msg"]];
+             });
+         }
+         else
+         {
+             if (__self.aryImage.count>0)
+             {
+                 UIImage *image = [__self.aryImage objectAtIndex:0];
+                 [__self.aryImage removeObjectAtIndex:0];
+                 [__self uploadPartyId:image];
+             }
+             else
+             {
+                 [__self.view hideToastActivity];
+                 [__self.view makeToast:@"创建成功"];
+                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                     [__self navBack];
+                 });
+             }
+         }
+     } fail:
+     ^{
+         dispatch_async(dispatch_get_main_queue(), ^{
+             [__self.view hideToastActivity];
+             [__self.view makeToast:@"图片上传失败"];
+         });
+     }];
 }
 
 @end

@@ -1,15 +1,14 @@
 //
-//  BBSViewController.m
+//  TeachViewController.m
 //  college
 //
-//  Created by xiongchi on 15/9/13.
+//  Created by xiongchi on 15/9/15.
 //  Copyright (c) 2015年 xiongchi. All rights reserved.
 //
 
-#import "BBSViewController.h"
-
-//#import ""
-#import "BBSModel.h"
+#import "TeachViewController.h"
+#import "XView.h"
+#import "TeachModel.h"
 #import "Toast+UIView.h"
 #import "UIImageView+WebCache.h"
 #import "EmojiTextAttachment.h"
@@ -18,7 +17,7 @@
 #import "UserInfo.h"
 #import "BaseService.h"
 
-@interface BBSViewController ()<UITextFieldDelegate>
+@interface TeachViewController ()<UITextFieldDelegate>
 {
     UIImageView *imgHead;
     UILabel *lblNickName;
@@ -27,20 +26,21 @@
     UIScrollView *scrollView;
     UITextField *txtBack;
 }
-@property (nonatomic,strong) BBSModel *model;
+
+@property (nonatomic,strong) TeachModel *model;
 @property (nonatomic,strong) NSMutableDictionary *aryDict;
 
 @end
 
-@implementation BBSViewController
+@implementation TeachViewController
 
--(id)initWithModel:(BBSModel *)model
+-(id)initWithModel:(TeachModel *)model
 {
     self = [super init];
     _aryDict = [NSMutableDictionary dictionary];
     _model = model;
-    DLog(@"bbsid:%@",_model.strBBSId);
-    __weak BBSViewController *__self = self;
+    DLog(@"bbsid:%@",_model.strTeachId);
+    __weak TeachViewController *__self = self;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         [__self download];
     });
@@ -48,14 +48,15 @@
     return self;
 }
 
+
 -(void)download
 {
     NSArray *ary = [_model.strImg componentsSeparatedByString:@","];
-    __weak BBSViewController *__self = self;
+    __weak TeachViewController *__self = self;
     __block NSInteger __nLength =ary.count;
     for (int i=0; i<ary.count;i++)
     {
-        NSString *strUrl = [NSString stringWithFormat:@"%@pub/download/bbs/%@?token=%@&pictureid=%@",KHttpServer,_model.strBBSId,[UserInfo sharedUserInfo].strToken,[ary objectAtIndex:i]];
+        NSString *strUrl = [NSString stringWithFormat:@"%@pub/download/bbs/%@?token=%@&pictureid=%@",KHttpServer,_model.strTeachId,[UserInfo sharedUserInfo].strToken,[ary objectAtIndex:i]];
         DLog(@"i:%d",i);
         SDWebImageManager *manager = [SDWebImageManager sharedManager];
         UIImage *image = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:strUrl];
@@ -68,9 +69,9 @@
                 if ([__self isViewLoaded])
                 {
                     dispatch_async(dispatch_get_main_queue(),
-                   ^{
-                       [__self setImageView];
-                   });
+                                   ^{
+                                       [__self setImageView];
+                                   });
                 }
             }
         }
@@ -80,10 +81,8 @@
             }
                                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL)
              {
-                 DLog(@"下载成功imageurl:%@",[imageURL absoluteString]);
-                 DLog(@"error:%@",error);
-                 if (error==nil)
-                 {
+                 DLog(@"下载成功");
+                 if (image) {
                      [__self.aryDict setObject:image forKey:[imageURL absoluteString]];
                      if ([_aryDict allKeys].count==__nLength)
                      {
@@ -95,18 +94,20 @@
                                             });
                          }
                      }
-                    }
+                     
                  }
-             ];
+             }];
         }
     }
 }
 
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    [self setTitleText:@"论坛"];
+    [self.view setBackgroundColor:VIEW_BACK];
+    [self setTitleText:@"授课"];
     scrollView = [[UIScrollView alloc] initWithFrame:Rect(0, 64, kScreenSourchWidth,kScreenSourchHeight-119)];
     
     scrollView.scrollEnabled = YES;
@@ -114,7 +115,9 @@
     [self.view addSubview:scrollView];
     
     imgHead = [[UIImageView alloc] initWithFrame:Rect(10, 10, 40,40)];
+    
     NSString *strUrl = [NSString stringWithFormat:@"%@pub/downloadUserPicture?userid=%@&token=%@",KHttpServer,_model.strUserId,[UserInfo sharedUserInfo].strToken];
+    
     [imgHead sd_setImageWithURL:[NSURL URLWithString:strUrl] placeholderImage:[UIImage imageNamed:@"firstFace"]];
     
     [scrollView addSubview:imgHead];
@@ -123,7 +126,9 @@
     
     [lblNickName setFont:XFONT(15)];
     
-    [lblNickName setTextColor:UIColorFromRGB(0x000000)];
+    [lblNickName setText:_model.strNick ? _model.strNick :@"测试"];
+    
+    [lblNickName setTextColor:UIColorFromRGB(0xFFFFFF)];
     
     [scrollView addSubview:lblNickName];
     
@@ -139,8 +144,42 @@
     
     [scrollView addSubview:lblTime];
     
-    txtContent = [[UITextView alloc] initWithFrame:Rect(0,imgHead.y+imgHead.height+10, kScreenSourchWidth,
-                                                        kScreenSourchHeight-(imgHead.y+imgHead.height+50))];
+    UIView *teachInfoView = [[UIView alloc] initWithFrame:Rect(0, imgHead.y+imgHead.height+19, kScreenSourchWidth,90)];
+    
+    [teachInfoView setBackgroundColor:VIEW_BACK];
+    [scrollView addSubview:teachInfoView];
+    
+    UILabel *lblTeachTime = [[UILabel alloc] initWithFrame:Rect(10, 5, teachInfoView.width-20, 20)];
+    [lblTeachTime setText:_model.strTeachTime];
+    [lblTeachTime setFont:XFONT(13)];
+    [lblTeachTime setTextColor:UIColorFromRGB(0x333333)];
+    [teachInfoView addSubview:lblTeachTime];
+    
+    [self addLineView:teachInfoView heaght:29.2];
+    
+    UILabel *lblJoin = [[UILabel alloc] initWithFrame:Rect(10, 35, teachInfoView.width-20, 20)];
+    [lblJoin setText:[NSString stringWithFormat:@"报名人数:%@  可参与人数:%@",_model.strRePly?_model.strRePly:@"0",_model.strJoinNum]];
+    [lblJoin setFont:XFONT(13)];
+    [lblJoin setTextColor:UIColorFromRGB(0x333333)];
+    [teachInfoView addSubview:lblJoin];
+    [self addLineView:teachInfoView heaght:59.2];
+    
+    UILabel *lblPrice = [[UILabel alloc] initWithFrame:Rect(10, 65, teachInfoView.width-20, 20)];
+    [lblPrice setText:[NSString stringWithFormat:@"参加价格:%@",_model.strCost]];
+    [lblPrice setFont:XFONT(13)];
+    [lblPrice setTextColor:UIColorFromRGB(0x333333)];
+    [teachInfoView addSubview:lblPrice];
+    [self addLineView:teachInfoView heaght:89.2];
+    
+    
+    UILabel *lblContent = [[UILabel alloc] initWithFrame:Rect(10,teachInfoView.y+teachInfoView.height+10,kScreenSourchWidth-20,20)];
+    [lblContent setFont:XFONT(14)];
+    [lblContent setText:@"授课说明"];
+    [lblContent setTextColor:UIColorFromRGB(0x333333)];
+    [scrollView addSubview:lblContent];
+    
+    txtContent = [[UITextView alloc] initWithFrame:Rect(0,lblContent.y+lblContent.height+10, kScreenSourchWidth,
+                                                        kScreenSourchHeight-(lblContent.y+lblContent.height+10+50))];
     [txtContent setFont:XFONT(14)];
     
     [scrollView addSubview:txtContent];
@@ -149,45 +188,78 @@
     
     [txtContent setScrollEnabled:NO];
     
-    txtBack = [[UITextField alloc] initWithFrame:Rect(10, kScreenSourchHeight-50,kScreenSourchWidth-20, 45)];
     
-    [self.view addSubview:txtBack];
+    UIButton *btnPush = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.view addSubview:btnPush];
+    [btnPush setTitle:@"立即报名" forState:UIControlStateNormal];
+    [btnPush setTitleColor:UIColorFromRGB(0xFFFFFF) forState:UIControlStateNormal];
+    [btnPush setTitleColor:UIColorFromRGB(0x222222) forState:UIControlStateHighlighted];
+    [btnPush setBackgroundColor:MAIN_COLOR];
+    [btnPush.layer setMasksToBounds:YES];
+    [btnPush.layer setCornerRadius:5.0];
+    btnPush.frame = Rect(10, kScreenSourchHeight-50, kScreenSourchWidth-20, 45);
+    [btnPush addTarget:self action:@selector(pushEvent) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:btnPush];
     
-    [txtBack setBorderStyle:UITextBorderStyleRoundedRect];
+    NSDate *nowDate = [NSDate date];
+    NSTimeInterval now = [nowDate timeIntervalSince1970];
+    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSTimeInterval classTime = [[fmt dateFromString:_model.strTeachTime] timeIntervalSince1970];
+    if (now>classTime)
+    {
+        btnPush.enabled = NO;
+    }
+
+    NSArray *ary = [_model.strImg componentsSeparatedByString:@","];
     
-    [txtBack.layer setBorderColor:LINE_COLOR.CGColor];
-    
-    [txtBack setTextColor:UIColorFromRGB(0x333333)];
-    
-    txtBack.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"回复"
-                                                                      attributes:@{NSForegroundColorAttributeName:[UIColor grayColor]}];;
-    txtBack.delegate = self;
-    
-    [self initData];
+    if ([_aryDict allKeys].count==ary.count)
+    {
+        [self setImageView];
+    }
 }
 
--(void)initData
+-(void)pushEvent
 {
-    NSString *strInfo = [NSString stringWithFormat:@"%@pub/bbs/ReplyList?token=%@&pk=%@&pageNo=1&pageSize=15",KHttpServer,[UserInfo sharedUserInfo].strToken,_model.strBBSId];
+    NSString *strInfo = [NSString stringWithFormat:@"%@bbs/applyClass?token=%@&bbsid=%@&publishuserid=%@&shengqinguserid=%@",KHttpServer,[UserInfo sharedUserInfo].strToken,_model.strTeachId,_model.strUserId,[UserInfo sharedUserInfo].strUserId];
+    __weak TeachViewController *__self = self;
+    NSDate *nowDate = [NSDate date];
+    NSTimeInterval now = [nowDate timeIntervalSince1970];
+    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSTimeInterval classTime = [[fmt dateFromString:_model.strTeachTime] timeIntervalSince1970];
+    if (now>classTime)
+    {
+        [self.view makeToast:@"已经过了报名期限"];
+        return ;
+    }
+    
     [BaseService postJSONWithUrl:strInfo parameters:nil success:^(id responseObject) {
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
-        DLog(@"dict:%@",dict);
-        if ([[dict objectForKey:@"status"] intValue]==200) {
-            
+        if ([[dict objectForKey:@"status"] intValue]==200)
+        {
+            DLog(@"报名成功");
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
+                [__self.view hideToastActivity];
+                [__self.view makeToast:@"报名成功"];
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
+                [__self.view hideToastActivity];
+                [__self.view makeToast:[dict objectForKey:@"msg"]];
+            });
         }
     } fail:^(NSError *error) {
-        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [__self.view hideToastActivity];
+            [__self.view makeToast:@"回复失败"];
+        });
     }];
     
-    
-    
-}
-
--(void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    [self setImageView];
 }
 
 - (void)didReceiveMemoryWarning
@@ -211,6 +283,7 @@
             break;
         }
         NSRange end = [_strContent rangeOfString:@"</img>"];
+        NSLog(@"rang:%@",[_strContent substringWithRange:NSMakeRange(start.location,end.location+end.length-start.location)]);
         _strContent = [_strContent stringByReplacingCharactersInRange:NSMakeRange(start.location,end.location+end.length-start.location) withString:@""];
         
         [aryIndex addObject:[NSNumber numberWithInteger:start.location]];
@@ -224,7 +297,7 @@
         EmojiTextAttachment *emojiTextAttachment = [EmojiTextAttachment new];
         //Set tag and image
         emojiTextAttachment.emojiTag = @"<img>{width:100,height:100}</img>";
-        NSString *strUrl = [NSString stringWithFormat:@"%@pub/download/bbs/%@?token=%@&pictureid=%@",KHttpServer,_model.strBBSId,[UserInfo sharedUserInfo].strToken,[array objectAtIndex:nNumber]];
+        NSString *strUrl = [NSString stringWithFormat:@"%@pub/download/bbs/%@?token=%@&pictureid=%@",KHttpServer,_model.strTeachId,[UserInfo sharedUserInfo].strToken,[array objectAtIndex:nNumber]];
         
         emojiTextAttachment.image = [_aryDict objectForKey:strUrl];
         
@@ -234,7 +307,7 @@
         CGFloat imgHeight = imageSize.height*(CGFloat)
         (emojiTextAttachment.emojiSize /((imageSize.width==0) ? kScreenSourchWidth:imageSize.width));
         
-//        DLog(@"imgHeight:%F",imgHeight);
+        DLog(@"imgHeight:%F",imgHeight);
         
         fHeight+=imgHeight;
         
@@ -242,10 +315,22 @@
                                                atIndex:[number intValue]];
         nNumber++;
     }
-//    DLog(@"fHeight:%f",fHeight);
-
+    DLog(@"fHeight:%f",fHeight);
+    
     txtContent.frame = Rect(0, txtContent.y, kScreenSourchWidth, fHeight);
     [scrollView setContentSize:CGSizeMake(kScreenSourchWidth, txtContent.y+txtContent.height)];
+}
+
+-(void)addLineView:(UIView *)headView heaght:(CGFloat)height
+{
+    UILabel *line1 = [[UILabel alloc] initWithFrame:CGRectMake(0, height, headView.width, 0.4)];
+    line1.backgroundColor = LINE_COLOR;
+    UILabel *line2 = [[UILabel alloc] initWithFrame:CGRectMake(0, height+0.4, headView.width,0.4)] ;
+    line2.backgroundColor = [UIColor whiteColor];
+    line1.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    line2.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    [headView addSubview:line1];
+    [headView addSubview:line2];
 }
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -254,13 +339,11 @@
     {
         return YES;
     }
-//    [txtBack resignFirstResponder];
     NSString *strUrl = [NSString stringWithFormat:@"%@pub/addReply/bbs?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
-    //{"pk" : 4 , "publishuserid" :5 , "replyuserid" :1 , "message" : "用户1回复用户5，帖子是4"}
-    NSDictionary *parameters = @{@"pk":_model.strBBSId,@"replyuserid":[UserInfo sharedUserInfo].strUserId,
+    NSDictionary *parameters = @{@"pk":_model.strTeachId,@"replyuserid":[UserInfo sharedUserInfo].strUserId,
                                  @"publishuserid":_model.strUserId,@"message":txtBack.text};
     DLog(@"parameters:%@",parameters);
-    __weak BBSViewController *__self = self;
+    __weak TeachViewController *__self = self;
     __weak UITextField *__txtBack = txtBack;
     [BaseService postJSONWithUrl:strUrl parameters:parameters success:^(id responseObject) {
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
@@ -278,7 +361,6 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [__self.view makeToast:[dict objectForKey:@"msg"]];
                 __txtBack.text = @"";
-//                [txtBack resignFirstResponder];
             });
         }
     } fail:^(NSError *error) {

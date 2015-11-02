@@ -8,6 +8,7 @@
 
 #import "StudyViewController.h"
 #import "AddBBSViewController.h"
+#import "BBSViewController.h"
 #import "MJRefresh.h"
 #import "AddTeachingViewController.h"
 #import "UserInfo.h"
@@ -15,6 +16,7 @@
 #import "BBSViewCell.h"
 #import "TeachModel.h"
 #import "BBSModel.h"
+#import "TeachViewController.h"
 #import "BaseService.h"
 
 @interface StudyViewController ()<UITableViewDataSource,UITableViewDelegate>
@@ -206,7 +208,16 @@
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
+    if(_tableBBS==tableView)
+    {
+        BBSViewController *bbsView = [[BBSViewController alloc] initWithModel:[_aryBBS objectAtIndex:indexPath.row]];
+        [self presentViewController:bbsView animated:YES completion:nil];
+    }
+    else
+    {
+        TeachViewController *teachView = [[TeachViewController alloc] initWithModel:[_aryTeach objectAtIndex:indexPath.row]];
+        [self presentViewController:teachView animated:YES completion:nil];
+    }
 }
 
 -(void)initBBsData
@@ -215,7 +226,8 @@
                         [UserInfo sharedUserInfo].strToken];
     __weak StudyViewController *__self = self;
     _nBBsCount = 0;
-    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject) {
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject)
+    {
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         DLog(@"dict:%@",dict);
         if ([[dict objectForKey:@"status"] intValue]==200) {
@@ -252,7 +264,7 @@
         DLog(@"dict:%@",dict);
         if ([[dict objectForKey:@"status"] intValue]==200) {
             NSArray *array = [dict objectForKey:@"list"];
-            [__self.aryBBS removeAllObjects];
+            [__self.aryTeach removeAllObjects];
             for (NSDictionary *temp in array)
             {
                 TeachModel *bbs = [[TeachModel alloc] initWithDict:temp];
@@ -279,7 +291,6 @@
         [_tableBBS footerEndRefreshing];
         return ;
     }
-    
     NSString *strUrl = [NSString stringWithFormat:@"%@bbs/search?token=%@&keyword=&type=1&pageNo=%zi&pageSize=10",KHttpServer,
                         [UserInfo sharedUserInfo].strToken,_nBBsCount+1];
     __weak StudyViewController *__self = self;
@@ -318,10 +329,12 @@
     __weak StudyViewController *__self = self;
     NSString *strTeach = [NSString stringWithFormat:@"%@bbs/search?token=%@&keyword=&type=2&pageNo=%zi&pageSize=10",KHttpServer,
                           [UserInfo sharedUserInfo].strToken,_nTeachCount+1];
-    [BaseService postJSONWithUrl:strTeach parameters:nil success:^(id responseObject) {
+    [BaseService postJSONWithUrl:strTeach parameters:nil success:^(id responseObject)
+    {
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         DLog(@"dict:%@",dict);
-        if ([[dict objectForKey:@"status"] intValue]==200) {
+        if ([[dict objectForKey:@"status"] intValue]==200)
+        {
             NSArray *array = [dict objectForKey:@"list"];
             for (NSDictionary *temp in array)
             {

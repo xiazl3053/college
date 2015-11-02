@@ -20,5 +20,8 @@ DEFINE_SINGLETON_FOR_HEADER(UserInfo)
 @property (nonatomic,copy) NSString *strToken;
 @property (nonatomic,copy) NSString *strUserId;
 @property (nonatomic,copy) NSString *strJianliId;
+@property (nonatomic,copy) NSString *strNickName;
+@property (nonatomic,copy) NSString *strName;
+@property (nonatomic,copy) NSString *strSchool;
 
 @end

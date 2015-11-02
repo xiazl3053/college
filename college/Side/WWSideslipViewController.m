@@ -58,7 +58,7 @@
     {
         case 1000:
         {
-            [index showMainView];
+//            [index showMainView];
         }
             break;
         case 1001:

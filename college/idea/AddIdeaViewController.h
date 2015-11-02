@@ -10,4 +10,6 @@
 
 @interface AddIdeaViewController : CustomViewController
 
+-(id)initWithZhengjiId:(NSInteger)zId;
+
 @end

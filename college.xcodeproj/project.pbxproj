@@ -108,6 +108,7 @@
 		4D5212781B96BB3D001DE63D /* XInTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5212771B96BB3D001DE63D /* XInTextField.m */; };
 		4D52127B1B96BEA5001DE63D /* XView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D52127A1B96BEA5001DE63D /* XView.m */; };
 		4D52127E1B972372001DE63D /* UploadImageService.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D52127D1B972372001DE63D /* UploadImageService.m */; };
+		4D52E9E01BA73DE80098D305 /* TeachViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D52E9DF1BA73DE80098D305 /* TeachViewController.m */; };
 		4D662A9C1BA15616003ED07F /* CollowModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D662A9B1BA15616003ED07F /* CollowModel.m */; };
 		4D662A9F1BA15FDB003ED07F /* CollowViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D662A9E1BA15FDB003ED07F /* CollowViewCell.m */; };
 		4D662AA21BA1BB1D003ED07F /* IdeaDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D662AA11BA1BB1D003ED07F /* IdeaDetailViewController.m */; };
@@ -409,6 +410,8 @@
 		4D52127A1B96BEA5001DE63D /* XView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XView.m; sourceTree = "<group>"; };
 		4D52127C1B972372001DE63D /* UploadImageService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UploadImageService.h; sourceTree = "<group>"; };
 		4D52127D1B972372001DE63D /* UploadImageService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UploadImageService.m; sourceTree = "<group>"; };
+		4D52E9DE1BA73DE80098D305 /* TeachViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TeachViewController.h; sourceTree = "<group>"; };
+		4D52E9DF1BA73DE80098D305 /* TeachViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TeachViewController.m; sourceTree = "<group>"; };
 		4D662A9A1BA15616003ED07F /* CollowModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollowModel.h; sourceTree = "<group>"; };
 		4D662A9B1BA15616003ED07F /* CollowModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CollowModel.m; sourceTree = "<group>"; };
 		4D662A9D1BA15FDB003ED07F /* CollowViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollowViewCell.h; sourceTree = "<group>"; };
@@ -1013,6 +1016,8 @@
 				4DAF6D6D1B9FED19001E7EAC /* StudyViewController.m */,
 				4DB7627D1BA5CEAA00AFAE49 /* BBSViewController.h */,
 				4DB7627E1BA5CEAA00AFAE49 /* BBSViewController.m */,
+				4D52E9DE1BA73DE80098D305 /* TeachViewController.h */,
+				4D52E9DF1BA73DE80098D305 /* TeachViewController.m */,
 			);
 			name = controller;
 			sourceTree = "<group>";
@@ -1595,6 +1600,7 @@
 				4D493B541B9C295D004AB9FB /* RSKImageScrollView.m in Sources */,
 				4D493B591B9C6732004AB9FB /* TrueJobViewController.m in Sources */,
 				4DAF6D681B9F2AAE001E7EAC /* AddBBSViewController.m in Sources */,
+				4D52E9E01BA73DE80098D305 /* TeachViewController.m in Sources */,
 				4D662AA51BA1BB28003ED07F /* CollowViewController.m in Sources */,
 				4D2FC95B1B8DA4910028C10F /* PlayViewController.m in Sources */,
 				4D2FC9231B8B0F490028C10F /* IQToolbar.m in Sources */,

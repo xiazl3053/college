@@ -12,6 +12,10 @@
 
 @interface HomeViewController : UIViewController
 
+@property (nonatomic,strong) UIButton *btnLeft;
+
+-(void)updateImage;
+
 -(void)setViewBgColor:(UIColor *)bgColor;
 
 -(void)setTitleText:(NSString *)strText;

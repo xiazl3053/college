@@ -23,5 +23,6 @@
 @property (nonatomic,copy) NSString *strBBSId;
 @property (nonatomic,copy) NSString *strNick;
 @property (nonatomic,copy) NSString *strType;
+@property (nonatomic,copy) NSString *strImg;
 
 @end

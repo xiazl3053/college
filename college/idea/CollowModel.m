@@ -10,7 +10,7 @@
 
 @implementation CollowModel
 
--(id)initWitkhDict:(NSDictionary *)dict
+-(id)initWithDict:(NSDictionary *)dict
 {
     self = [super init];
     
@@ -27,7 +27,7 @@
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [fmt setLocale:usLocale];
-    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    fmt.dateFormat = @"yyyy-MM-dd";
     
     long lCreateTime = (long)[[dict objectForKey:@"createtime"] doubleValue]/1000;
     NSDate *createTime = [NSDate dateWithTimeIntervalSince1970:lCreateTime];
@@ -37,8 +37,12 @@
     NSDate *updateTime = [NSDate dateWithTimeIntervalSince1970:lUpdateTime];
     _strUpdateTime = [fmt stringFromDate:updateTime];
     
-    
-    
+    NSDictionary *userDict = [dict objectForKey:@"user"];
+    if (userDict)
+    {
+        _strNick = [userDict objectForKey:@"nickname"];
+    }
+    _strCollowId = [dict objectForKey:@"zhengjiid"];
     
     return self;
 }

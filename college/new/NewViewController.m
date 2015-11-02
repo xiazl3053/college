@@ -25,6 +25,7 @@
     _aryData = [NSMutableArray array];
     
     [self setTitleText:@"新闻"];
+    
     _tableView = [[UITableView alloc] initWithFrame:Rect(0, 64, kScreenSourchWidth, kScreenSourchHeight-114)];
     
     _tableView.delegate = self;
@@ -34,7 +35,6 @@
     
     [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     
-    [_tableView reloadData];
     
     NewModel *newM1 = [[NewModel alloc] initWithItem:@[@"天津爆炸",@"新华网天津8月",@"2015-08-15"]];
     NewModel *newM2 = [[NewModel alloc] initWithItem:@[@"天津爆炸",@"新华网天津8月",@"2015-08-15"]];
@@ -47,11 +47,21 @@
     [_aryData addObject:newM3];
     [_aryData addObject:newM4];
     [_aryData addObject:newM5];
-//    
-//    [self addLeftEvent:^(id sender)
-//    {
-//        AppDelegate *delegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-//    }];
+
+    [_tableView reloadData];
+}
+
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateImage) name:MESSAGE_FOR_UPDATE_USER_INFO object:nil];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MESSAGE_FOR_UPDATE_USER_INFO object:nil];
 }
 
 - (void)didReceiveMemoryWarning {

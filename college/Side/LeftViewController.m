@@ -139,7 +139,7 @@
     
     [lblNick setTextColor:UIColorFromRGB(0xFFFFFF)];
     
-    [lblNick setText:@"小志"];
+    [lblNick setText:@""];
     
     [lblNick setFont:XFONT(16)];
     
@@ -151,7 +151,7 @@
     
     [lblScohool setFont:XFONT(12)];
     
-    [lblScohool setText:@"广州科技园"];
+    [lblScohool setText:@""];
     
     [self.view addSubview:lblScohool];
     
@@ -187,6 +187,41 @@
     [imgDown setImage:[UIImage imageNamed:@"icon_down"]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateImgView) name:MESSAGE_FOR_UPDATE_USER_INFO object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateNick) name:MESSAGE_FOR_UPDATE_USER_NICK_VC object:nil];
+    [self getUserInfo];
+}
+
+-(void)updateNick
+{
+    __weak UILabel *__lblNick = lblNick;
+    dispatch_async(dispatch_get_main_queue(),
+    ^{
+        __lblNick.text = [UserInfo sharedUserInfo].strNickName;
+    });
+}
+
+-(void)getUserInfo
+{
+    NSString *strUrl = [NSString stringWithFormat:@"%@pub/getUser?userid=%@&token=%@",KHttpServer,[UserInfo sharedUserInfo].strUserId,
+                        [UserInfo sharedUserInfo].strToken];
+    __weak UILabel *__lblNick = lblNick;
+    __weak UILabel *__lblSchool = lblScohool;
+    [BaseService postJSONWithUrl:strUrl parameters:nil success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        DLog(@"dict:%@",dict);
+        if ([[dict objectForKey:@"status"] intValue]==200)
+        {
+            NSDictionary *userDict = [dict objectForKey:@"user"];
+            [[UserInfo sharedUserInfo] setUserDict:userDict];
+            dispatch_async(dispatch_get_main_queue(),^{
+                __lblNick.text = [UserInfo sharedUserInfo].strNickName;
+                __lblSchool.text = [UserInfo sharedUserInfo].strSchool;
+            });
+        }
+    } fail:^(NSError *error)
+    {
+        
+    }];
 }
 
 -(void)setUserInfo

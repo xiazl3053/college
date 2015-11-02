@@ -8,9 +8,11 @@
 
 #import "UpdNikNameViewController.h"
 #import "Toast+UIView.h"
+#import "BaseService.h"
+#import "UserInfo.h"
 #import "ProgressHUD.h"
 
-@interface UpdNikNameViewController ()
+@interface UpdNikNameViewController ()<UITextFieldDelegate>
 
 @property (nonatomic,strong) UITextField *txtNick;
 
@@ -19,7 +21,6 @@
 @implementation UpdNikNameViewController
 -(void)initHeadView
 {
-    
     [self setTitleText:@"昵称修改"];
 }
 -(void)navBack
@@ -55,9 +56,55 @@
     _txtNick.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     _txtNick.leftViewMode = UITextFieldViewModeAlways;
     UIColor *color = [UIColor grayColor];
-    _txtNick.attributedPlaceholder = [[NSAttributedString alloc] initWithString:XCLocalized(@"Nickname") attributes:@{NSForegroundColorAttributeName: color}];
+    _txtNick.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"昵称" attributes:@{NSForegroundColorAttributeName: color}];
     [_txtNick setReturnKeyType:UIReturnKeyDone];
     [_txtNick setBackgroundColor:[UIColor whiteColor]];
+    _txtNick.delegate = self;
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (_txtNick.text==nil || [_txtNick.text isEqualToString:@""]) {
+        [self.view makeToast:@"昵称不能为空"];
+        return YES;
+    }
+    [self.view makeToastActivity];
+    __weak UpdNikNameViewController *__self = self;
+    NSString *strInfo = [NSString stringWithFormat:@"%@pub/updateUser?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
+    NSDictionary *parameters = @{@"userid":[UserInfo sharedUserInfo].strUserId,@"nickname":_txtNick.text};
+    [BaseService postJSONWithUrl:strInfo parameters:parameters success:^(id responseObject) {
+        NSDictionary *dict= [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        if ([[dict objectForKey:@"status"] intValue]==200)
+        {
+            NSDictionary *userDict = [dict objectForKey:@"user"];
+            [[UserInfo sharedUserInfo] setUserDict:userDict];
+            dispatch_async(dispatch_get_main_queue(),
+           ^{
+               [__self.view hideToastActivity];
+               [__self.view makeToast:[dict objectForKey:@"msg"]];
+               dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                   [[NSNotificationCenter defaultCenter] postNotificationName:MESSAGE_FOR_UPDATE_USER_NICK_VC object:nil];
+                   [__self dismissViewControllerAnimated:YES completion:nil];
+               });
+           });
+        }
+        else
+        {
+           dispatch_async(dispatch_get_main_queue(),
+           ^{
+               [__self.view hideToastActivity];
+               [__self.view makeToast:[dict objectForKey:@"msg"]];
+           });
+        }
+    } fail:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(),
+        ^{
+               [__self.view hideToastActivity];
+               [__self.view makeToast:@"连接服务器失败"];
+        });
+    }];
+    
+    return YES;
 }
 
 - (void)didReceiveMemoryWarning {

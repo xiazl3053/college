@@ -169,7 +169,7 @@
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         DLog(@"dict:%@",dict);
-        
+        [UserInfo sharedUserInfo].strToken = [dict objectForKey:@"token"];
         if([[dict objectForKey:@"status"] intValue]==200)
         {
             [[UserInfo sharedUserInfo] setUserDict:[dict objectForKey:@"user"]];

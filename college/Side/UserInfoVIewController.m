@@ -43,17 +43,17 @@
     }
     return self;
 }
+
 -(void)initUI
 {
     [self setTitleText:@"个人资料"];
     [self.view setBackgroundColor:VIEW_BACK];
-
 }
+
 -(void)navBack
 {
     [self dismissViewControllerAnimated:YES completion:^{}];
 }
-
 
 - (void)viewDidLoad
 {
@@ -85,8 +85,16 @@
   
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initData) name:NS_UPDATE_USER_INFO_VC object:nil];
     [self initHiddenView];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataNick) name:MESSAGE_FOR_UPDATE_USER_NICK_VC object:nil];
 }
-
+-(void)updataNick
+{
+    __weak UITableView *__tableView = _tableView;
+    dispatch_async(dispatch_get_main_queue(),
+   ^{
+       [__tableView reloadData];
+   });
+}
 
 -(void)initHiddenView
 {
@@ -229,7 +237,8 @@
             case 1:
             {
                 [cell.lblName setText:@"昵称"];
-                [cell.txtName setText:@""];
+                NSString *strNick = [UserInfo sharedUserInfo].strNickName;
+                [cell.txtName setText:strNick];
             }
             break;
             case 2:
@@ -392,6 +401,7 @@
     //coppedImage
     [self dismissViewControllerAnimated:YES completion:nil];
     [self uploadImage:croppedImage];
+    _hiddenView.hidden = YES;
 }
 
 -(void)uploadImage:(UIImage*)image
@@ -399,8 +409,9 @@
     __weak UserInfoVIewController *__self = self;
     //上传图片
     NSString *strUrl = [NSString stringWithFormat:@"%@pub/uploadUserPicture?userid=%@&token=%@&type=jpg",KHttpServer,[UserInfo sharedUserInfo].strUserId,[UserInfo sharedUserInfo].strToken];
-    
-    [BaseService postUploadWithUrl:strUrl image:image success:^(id responseObject) {
+    [[SDImageCache sharedImageCache] removeImageForKey:strUrl];
+    [BaseService postUploadWithUrl:strUrl image:image success:^(id responseObject)
+    {
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         DLog(@"dict:%@",dict);
         if ([[dict objectForKey:@"status"] intValue]==200)
@@ -419,13 +430,11 @@
     NSString *strImg = [NSString stringWithFormat:@"%@pub/downloadUserPicture?token=%@&uesrid=%@",
                         KHttpServer,[UserInfo sharedUserInfo].strToken,[UserInfo sharedUserInfo].strUserId];
     [[SDImageCache sharedImageCache] removeImageForKey:strImg];
-//    NSArray *array = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForItem:0 inSection:0], nil];
     __weak UserInfoVIewController *__self = self;
     UserImageCell *cell = (UserImageCell*)[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
     [cell.imgView sd_setImageWithURL:[NSURL URLWithString:strImg] placeholderImage:[UIImage imageNamed:@"moren_longin"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL)
     {
         [__self.tableView reloadData];
-        
         [[NSNotificationCenter defaultCenter] postNotificationName:MESSAGE_FOR_UPDATE_USER_INFO object:nil];
     }];
 }

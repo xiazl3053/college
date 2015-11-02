@@ -8,6 +8,7 @@
 
 #import "AddCollowViewController.h"
 #import "XViewTextField.h"
+#import "Toast+UIView.h"
 #import "XViewTextSelect.h"
 #import "UserInfo.h"
 #import "XContentViewController.h"
@@ -18,7 +19,6 @@
 {
     XViewTextField *txtTitle;
     XViewTextField *txtPrice;
-    //    XViewTextSelect *
     XViewTextSelect *txtIntro;
     XViewTextSelect *txtContent;
 }
@@ -79,14 +79,6 @@
     [txtTitle.lblTitle setText:@"标题"];
     txtTitle.txtContent.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"请输入标题"
                                                                                 attributes:@{NSForegroundColorAttributeName:color}];
-//    [txtPrice.lblTitle setText:@"价格"];
-//    txtPrice.txtContent.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"请输入价格"
-//                                                                                attributes:@{NSForegroundColorAttributeName:color}];
-    
-//    [txtIntro.lblTitle setText:@"引言"];
-//    txtIntro.txtContent.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"请输入引言"
-//                                                                                attributes:@{NSForegroundColorAttributeName:color}];
-    
     [txtContent.lblTitle setText:@"需求"];
     txtContent.txtContent.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"请输入需求" attributes:@{NSForegroundColorAttributeName:color}];
     
@@ -123,7 +115,33 @@
 
 -(void)setEvent
 {
-    
+    NSString *strTitle = txtTitle.txtContent.text;
+    if ([strTitle isEqualToString:@""]) {
+        [self.view makeToast:@"标题不能为空"];
+        return ;
+    }
+    if (_strContent==nil || [_strContent isEqualToString:@""]) {
+        [self.view makeToast:@"请输入需求"];
+        return;
+    }
+    NSDictionary *parameters = @{@"userid":[UserInfo sharedUserInfo].strUserId,@"title":strTitle,@"content":_strContent};
+    __weak AddCollowViewController *__self = self;
+    NSString *strUrl = [NSString stringWithFormat:@"%@zhengji/add?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
+    [BaseService postJSONWithUrl:strUrl parameters:parameters success:^(id responseObject) {
+        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+        
+        if ([[dict objectForKey:@"status"] intValue]==200) {
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
+                [__self.view makeToast:@"添加成功"];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [__self dismissViewControllerAnimated:YES completion:nil];
+                });
+            });
+        }
+    } fail:^(NSError *error) {
+        
+    }];
 }
 
 

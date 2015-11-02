@@ -10,7 +10,7 @@
 
 @interface IndexViewController : UIViewController
 
--(void)showMainView;
+//-(void)showMainView;
 
 //-(void)showRecordView;
 

@@ -12,14 +12,6 @@
 
 -(id)initWithDict:(NSDictionary *)dict
 {
-//    @property(nonatomic,copy) NSString *strUserId;
-//    @property (nonatomic,copy) NSString *strCreateTime;
-//    @property (nonatomic,copy) NSString *strUpdateTime;
-//    @property (nonatomic,copy) NSString *strTitile;
-//    @property (nonatomic,copy) NSString *strCost;
-//    @property (nonatomic,copy) NSString *strContent;
-//    @property (nonatomic,copy) NSString *strRePly;
-//    @property (nonatomic,copy) NSString *strClickNum;
     self = [super init];
     
     _strUserId = [dict objectForKey:@"userid"];
@@ -29,7 +21,7 @@
     _strClickNum = [dict objectForKey:@"clicknumber"]==nil?@"0":[dict objectForKey:@"clicknumber"];
     _strBBSId = [dict objectForKey:@"bbsid"];
     _strType = [dict objectForKey:@"type"];
-    
+    _strImg = [dict objectForKey:@"pictures"];
     
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
@@ -43,6 +35,12 @@
     long lUpdateTime = (long)[[dict objectForKey:@"updatetime"] doubleValue]/1000;
     NSDate *updateTime = [NSDate dateWithTimeIntervalSince1970:lUpdateTime];
     _strUpdateTime = [fmt stringFromDate:updateTime];
+    
+    NSDictionary *userDict = [dict objectForKey:@"user"];
+    if (userDict)
+    {
+        _strNick = [userDict objectForKey:@"nickname"];
+    }
     
     return self;
 }

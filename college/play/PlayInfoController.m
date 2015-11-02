@@ -18,7 +18,6 @@
 #import "SDImageCache.h"
 #import "NSAttributedString+EmojiExtension.h"
 
-
 @interface PlayInfoController ()<UITextViewDelegate>
 {
     UIImageView *imgHead;
@@ -105,16 +104,19 @@
                                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL)
              {
                  DLog(@"下载成功");
-                 [__self.aryDict setObject:image forKey:[imageURL absoluteString]];
-                 if ([_aryDict allKeys].count==__nLength)
-                 {
-                     if ([__self isViewLoaded])
+                 if (image) {
+                     [__self.aryDict setObject:image forKey:[imageURL absoluteString]];
+                     if ([_aryDict allKeys].count==__nLength)
                      {
-                         dispatch_async(dispatch_get_main_queue(),
-                                        ^{
-                                            [__self setImageView];
-                                        });
+                         if ([__self isViewLoaded])
+                         {
+                             dispatch_async(dispatch_get_main_queue(),
+                                            ^{
+                                                [__self setImageView];
+                                            });
+                         }
                      }
+                     
                  }
              }];
         }

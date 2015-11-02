@@ -39,7 +39,7 @@
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [fmt setLocale:usLocale];
     
-    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    fmt.dateFormat = @"yyyy-MM-dd";
     
     long lCreateTime = (long)[[dict objectForKey:@"createtime"] doubleValue]/1000;
     NSDate *createTime = [NSDate dateWithTimeIntervalSince1970:lCreateTime];

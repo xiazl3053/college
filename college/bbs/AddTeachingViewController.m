@@ -14,25 +14,24 @@
 #import "Toast+UIView.h"
 #import "XLoginButton.h"
 #import "BaseService.h"
+#import "XTextViewController.h"
+#import "TeachModel.h"
 @interface AddTeachingViewController ()
 {
     XViewTextField *txtTitle;
-//    UITextView *txtView;
     UIButton *btnPush;
     XViewTextSelect *txtTime;
     XViewTextField *txtCount;
     XViewTextField *txtPrice;
     XViewTextSelect *txtContent;
-//    XInTextField *txtName;
-//    XInTextField *txtTime;
-//    XInTextField *txtCount;
-//    XInTextField *txtType;
-//    XInTextField *txtContent;
+
     UIView *viewDate;
     UIDatePicker *datePicker;
 }
+@property (nonatomic,strong) TeachModel *backModel;
 
 @property (nonatomic,copy) NSString *strContent;
+@property (nonatomic,strong) NSMutableArray *aryImage;
 
 @end
 
@@ -42,6 +41,7 @@
 {
     [super viewDidLoad];
     [self.view setBackgroundColor:VIEW_BACK];
+    _aryImage = [NSMutableArray array];
     [self initView];
 }
 
@@ -124,20 +124,23 @@
     __weak AddTeachingViewController *__self = self;
     __weak XViewTextSelect *__txtContent = txtContent;
     [txtContent addTouchEvent:^{
-        XContentViewController *viewCon = [[XContentViewController alloc]  initWithTitle:@"授课说明" content:__self.strContent];
-        viewCon.stringBlock = ^(NSString *strInfo)
+        XTextViewController *viewCon = [[XTextViewController alloc]  initWithTitle:@"授课说明" content:__self.strContent ary:__self.aryImage];
+        viewCon.blockText = ^(NSString *strInfo,NSArray *aryImage)
         {
             __self.strContent = strInfo;
-            dispatch_async(dispatch_get_main_queue(),^{
-                [__txtContent.txtContent setText:[NSString stringWithFormat:@"已输入%zi个字符",__self.strContent.length]];
+            [__self.aryImage removeAllObjects];
+            [__self.aryImage addObjectsFromArray:aryImage];
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
+                 [__txtContent.txtContent setText:[NSString stringWithFormat:@""/*,__self.strContent.length*/]];
             });
         };
         [__self presentViewController:viewCon animated:YES completion:nil];
     }];
     [self initDateView];
     __weak UIView *__view = viewDate;
-    [txtTime addTouchEvent:^{
-
+    [txtTime addTouchEvent:
+    ^{
         __view.hidden = NO;
     }];
     
@@ -149,8 +152,9 @@
     NSString *strTitle = txtTitle.txtContent.text;
     NSString *strCount = txtCount.txtContent.text;
     NSString *strTime = txtTime.txtContent.text;
+    NSString *strPrice = txtPrice.txtContent.text;
     NSString *strNumber = nil;
-    NSString *strPrice;// = txtPrice.txtContent.text;
+    
     if (strTitle==nil || [strTitle isEqualToString:@""])
     {
         [self.view makeToast:@"授课主题不能为空"];
@@ -165,6 +169,11 @@
         [self.view makeToast:@"授课说明不能为空"];
         return ;
     }
+    if (strPrice == nil || [strPrice isEqualToString:@""]) {
+        [self.view makeToast:@"收割价格不能为空"];
+        return ;
+    }
+    
     if (strCount == nil||[strCount isEqualToString:@""])
     {
         strNumber = @"99999999";
@@ -173,14 +182,6 @@
     {
         strNumber = strCount;
     }
-    if ([txtPrice.txtContent.text isEqualToString:@""]) {
-        strPrice = @"0";
-    }
-    else
-    {
-        strPrice = txtPrice.txtContent.text;
-    }
-    
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [fmt setLocale:usLocale];
@@ -189,15 +190,10 @@
     
     NSString *strUrl = [NSString stringWithFormat:@"%@bbs/add?token=%@",KHttpServer,[UserInfo sharedUserInfo].strToken];
     
-//    NSDictionary *parameter = @{@"userid":[UserInfo sharedUserInfo].strUserId,
-//                                @"title":strTitle,@"people":strNumber,@"teachtime":strDate/*,@"cost":strPrice*/,@"type":@"2",
-//                                @"content":_strContent,@"teachtype":@"123456"};
     NSDictionary *parameters = @{@"userid":[UserInfo sharedUserInfo].strUserId,
                                 @"title":strTitle,@"people":strNumber,@"teachtime":strDate/*,@"price":strPrice*/,@"type":@"2",
-                                @"content":_strContent,@"teachtype":@"123456",@"tag":@"我去啊"};
-    
-//    NSDictionary *parameters = @{@"type":@"2",@"title":strTitle,@"content":_strContent,@"userid":[UserInfo sharedUserInfo].strUserId,
-//                                 @"people":@"5"};
+                                @"content":_strContent,@"teachtype":@"123456",@"tag":@"我去啊",@"info":strPrice};
+
     [self.view makeToastActivity];
     
     __weak AddTeachingViewController *__self = self;
@@ -209,13 +205,27 @@
         if ([[dict objectForKey:@"status"] intValue]==200)
         {
             //上传图片
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [__self.view hideToastActivity];
-                [__self.view makeToast:@"添加授课成功"];
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [__self.view hideToastActivity];
+//                [__self.view makeToast:@"添加授课成功"];
+//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                    [__self dismissViewControllerAnimated:YES completion:nil];
+//                });
+//            });
+            if (__self.aryImage.count>0)
+            {
+                __self.backModel = [[TeachModel alloc] initWithDict:[dict objectForKey:@"bbs"]];
+                UIImage *image = [__self.aryImage objectAtIndex:0];
+                [__self.aryImage removeObjectAtIndex:0];
+                [__self uploadPartyId:image];
+            }
+            else
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                ^{
                     [__self dismissViewControllerAnimated:YES completion:nil];
                 });
-            });
+            }
         }
         else
         {
@@ -230,6 +240,52 @@
             [__self.view makeToast:@"添加失败"];
         });
     }];
+}
+
+
+-(void)uploadPartyId:(UIImage *)image
+{
+    NSString *strUrl = [NSString stringWithFormat:@"%@pub/uploadMore/bbs/%@?token=%@&type=jpg",KHttpServer,_backModel.strTeachId
+                        ,[UserInfo sharedUserInfo].strToken];
+    DLog(@"strUrl:%@",strUrl);
+    __weak AddTeachingViewController *__self = self;
+    [BaseService postUploadWithUrl:strUrl image:image success:^(id responseObject)
+     {
+         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+         DLog(@"dict:%@",dict);
+         NSString *strInfo = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+         DLog(@"strInfo:%@",strInfo);
+         if([[dict objectForKey:@"status"] intValue]!=200)
+         {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [__self.view hideToastActivity];
+                 [__self.view makeToast:[dict objectForKey:@"msg"]];
+             });
+         }
+         else
+         {
+             if (__self.aryImage.count>0)
+             {
+                 UIImage *image = [__self.aryImage objectAtIndex:0];
+                 [__self.aryImage removeObjectAtIndex:0];
+                 [__self uploadPartyId:image];
+             }
+             else
+             {
+                 [__self.view hideToastActivity];
+                 [__self.view makeToast:@"创建成功"];
+                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                     [__self navBack];
+                 });
+             }
+         }
+     } fail:
+     ^{
+         dispatch_async(dispatch_get_main_queue(), ^{
+             [__self.view hideToastActivity];
+             [__self.view makeToast:@"图片上传失败"];
+         });
+     }];
 }
 
 -(void)initDateView
